@@ -1,0 +1,6 @@
+- Install all necessary vagrant-plugins beforehand? 
+- Make PHP-Version configurable through .env
+- Make Gitify-Paths configurable through .env
+- Make OpenSSL-Version configurable through .env
+    - Install OpenSSL only if version is specified & version not already installed
+    - Create certificate only if version is specified & certificate not already exist

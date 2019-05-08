@@ -1,0 +1,97 @@
+---
+# Apache settings
+#apache_packages_state: "latest"
+#apache_enablerepo: "ondrej/apache2"
+apache_listen_ip: "*"
+apache_listen_port: 80
+apache_listen_port_ssl: 443
+
+apache_remove_default_vhost: true
+
+apache_vhosts:
+  - servername: "local.dev"
+    documentroot: "/var/www/html"
+    extra_parameters: |
+          ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/var/www/html"
+
+apache_vhosts_ssl:
+  - servername: "local.dev"
+    documentroot: "/var/www/html"
+    certificate_file: "{{ self_signed_certs.0.cert }}"
+    certificate_key_file: "{{ self_signed_certs.0.key }}"
+    extra_parameters: |
+          HostnameLookups Off
+          Protocols h2 h2c http/1.1
+          ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/var/www/html"
+
+apache_ssl_protocol: "All -SSLv3"
+apache_ssl_cipher_suite: "AES256+EECDH:AES256+EDH"
+
+apache_allow_override: "All"
+apache_options: "-Indexes +FollowSymLinks"
+
+#apache_mods_enabled:
+#  - rewrite.load
+#  - ssl.load
+
+
+# MySQL
+mysql_user_home: /root
+mysql_user_name: root
+mysql_user_password: root
+
+mysql_root_home: /root
+mysql_root_username: root
+mysql_root_password: root
+
+mysql_root_password_update: no
+
+
+# PHPMyAdmin
+phpmyadmin_mysql_user: root
+phpmyadmin_mysql_password: "{{ mysql_root_password }}"
+
+phpmyadmin_config_file: /etc/phpmyadmin/config.inc.php
+
+phpmyadmin_mysql_host: localhost
+phpmyadmin_mysql_port: ""
+phpmyadmin_mysql_socket: ""
+phpmyadmin_mysql_connect_type: tcp
+
+
+# PHP common options
+php_version: "7.2"
+php_default_version_debian: "7.2"
+php_enable_webserver: true
+php_webserver_daemon: "apache2"
+php_install_recommends: yes
+
+# PHP error options
+php_error_reporting: "E_ALL & ~E_DEPRECATED & ~E_STRICT"
+php_display_errors: "On"
+php_display_startup_errors: "On"
+
+# PHP-FPM configuration
+php_fpm_pool_user: vagrant
+php_fpm_pool_group: vagrant
+php_enable_php_fpm: true
+
+# PHP memory settings
+php_memory_limit: "256M"
+php_max_execution_time: "90"
+php_upload_max_filesize: "256M"
+
+# OpCache settings
+php_opcache_enable: "1"
+php_opcache_enable_cli: "1"
+php_opcache_memory_consumption: "128"
+php_opcache_interned_strings_buffer: "8"
+php_opcache_max_accelerated_files: "4096"
+php_opcache_revalidate_freq: "60"
+
+# Timezone
+php_date_timezone: "Europe/Berlin"
+
+# Additional packages
+php_extra_packages:
+  - php-pdo

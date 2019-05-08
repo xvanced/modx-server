@@ -1,0 +1,40 @@
+<modx>
+    <database_type>mysql</database_type>
+    <database_server>localhost</database_server>
+    <database>xvModxDatabase</database>
+    <database_user>xvModxUser</database_user>
+    <database_password>xvModxPassword</database_password>
+    <database_connection_charset>utf8</database_connection_charset>
+    <database_charset>utf8</database_charset>
+    <database_collation>utf8_unicode_ci</database_collation>
+    <table_prefix>modx_</table_prefix>
+    <https_port>443</https_port>
+    <http_host>localhost</http_host>
+    <cache_disabled>0</cache_disabled>
+
+    <!-- Is MODX already inplace and the core-package unpacked? -->
+    <inplace>1</inplace>
+    <unpacked>1</unpacked>
+
+    <!-- The language to install MODX for. This will set the default manager language to this. Use IANA codes. -->
+    <language>de</language>
+
+    <!-- Information for your administrator account -->
+    <cmsadmin>Sebastian</cmsadmin>
+    <cmspassword>localDev</cmspassword>
+    <cmsadminemail>info@sebastian-marinescu.de</cmsadminemail>
+
+    <!-- Paths for your MODX core directory -->
+    <core_path>/var/www/html/core/</core_path>
+
+    <!-- Paths for the default contexts that are installed. -->
+    <context_mgr_path>/var/www/html/manager/</context_mgr_path>
+    <context_mgr_url>/manager/</context_mgr_url>
+    <context_connectors_path>/var/www/html/connectors/</context_connectors_path>
+    <context_connectors_url>/connectors/</context_connectors_url>
+    <context_web_path>/var/www/html/</context_web_path>
+    <context_web_url>/</context_web_url>
+
+    <!-- Whether or not to remove the setup-directory after installation. -->
+    <remove_setup_directory>1</remove_setup_directory>
+</modx>

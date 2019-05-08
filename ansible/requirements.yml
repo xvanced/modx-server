@@ -1,0 +1,14 @@
+---
+- src: geerlingguy.mysql
+- src: geerlingguy.apache
+- src: geerlingguy.php-versions
+- src: geerlingguy.php
+- src: geerlingguy.php-mysql
+- src: geerlingguy.apache-php-fpm
+- src: geerlingguy.phpmyadmin
+  version: 1.3.2
+- src: geerlingguy.composer
+#- src: geerlingguy.php-xdebug
+- src: geerlingguy.git
+- src: franklinkim.environment
+- src: kbrebanov.unzip

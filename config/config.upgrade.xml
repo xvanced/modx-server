@@ -1,0 +1,11 @@
+<modx>
+    <!-- Is MODX already inplace and the core-package unpacked? -->
+    <inplace>1</inplace>
+    <unpacked>1</unpacked>
+
+    <!-- The language to install MODX for. This will set the default manager language to this. Use IANA codes. -->
+    <language>de</language>
+
+    <!-- Whether or not to remove the setup-directory after installation. -->
+    <remove_setup_directory>1</remove_setup_directory>
+</modx>

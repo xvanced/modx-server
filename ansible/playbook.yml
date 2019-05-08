@@ -1,0 +1,331 @@
+---
+# Ansible playbook for a LAMP server with pre-installed Gitify and MODX.
+#
+# @author Sebastian G. Marinescu (2017-2019)
+
+- name: Set up apache, php, mysql and composer on server
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  roles:
+    - role: geerlingguy.mysql
+    - role: geerlingguy.apache
+    - role: geerlingguy.php-versions
+    - role: geerlingguy.php
+    - role: geerlingguy.php-mysql
+    - role: geerlingguy.apache-php-fpm
+    - role: geerlingguy.phpmyadmin
+    - role: geerlingguy.composer
+    - role: geerlingguy.git
+    - role: franklinkim.environment
+    - role: kbrebanov.unzip
+
+  vars:
+    openssl_dir: /opt/OpenSSL
+    openssl_version: 1.1.1b
+    gitify_dir: /opt/Gitify
+
+    environment_config:
+      PATH: '{{ gitify_dir }}:{{ ansible_env.PATH }}'
+      MODX_VERSION: '{{ modx_version }}'
+
+    self_signed_certs:
+      - key: '/etc/ssl/private/server-{{ modx_host }}.key'
+        cert: '/etc/ssl/certs/server-{{ modx_host }}.crt'
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+
+    ## OpenSSL Updates
+
+    - name: Create main directory for OpenSSL
+      file:
+        path: '{{ openssl_dir }}'
+        state: directory
+
+    - name: Download newest OpenSSL
+      get_url:
+        url: 'https://www.openssl.org/source/openssl-{{ openssl_version }}.tar.gz'
+        dest: '{{ openssl_dir }}/openssl-{{ openssl_version }}.tar.gz'
+        mode: 0755
+
+    - name: Create version directory for OpenSSL
+      file:
+        path: '{{ openssl_dir }}/openssl-{{ openssl_version }}'
+        state: directory
+
+    - name: Extract newest OpenSSL into user-dir
+      unarchive:
+        remote_src: yes
+        src: '{{ openssl_dir }}/openssl-{{ openssl_version }}.tar.gz'
+        dest: '{{ openssl_dir }}'
+
+    - name: Install newest OpenSSL
+      shell: |
+        ./config
+        make
+        sudo mv /usr/bin/openssl ~/tmp
+        sudo make install
+        sudo ln -s /usr/local/bin/openssl /usr/bin/openssl
+        sudo ldconfig
+      args:
+        executable: /bin/bash
+        chdir: '{{ openssl_dir }}/openssl-{{ openssl_version }}'
+        creates: '{{ openssl_dir }}/openssl-{{ openssl_version }}\Makefile'
+
+    - name: Check OpenSSL version
+      shell: openssl version
+      changed_when: false
+      failed_when: false
+      register: openssl_version
+
+    - name: Is OpenSSL installed correctly?
+      debug:
+        msg: "{{ openssl_version.stdout_lines }}"
+      when: openssl_version.stdout_lines is defined
+
+    ## SSL Certificate
+
+    - name: Create self-signed certificate, if configured
+      command: >
+        openssl req -x509 -nodes -subj '/CN={{ modx_host }}' -days 365
+        -addext "subjectAltName = DNS:{{ modx_host }}"
+        -addext "certificatePolicies = 1.2.3.4"
+        -newkey rsa:4096 -sha256 -keyout {{ item.key }} -out {{ item.cert }}
+        creates={{ item.cert }}
+      with_items: '{{ self_signed_certs }}'
+
+    ## Apache2 Updates
+
+    - name: Upgrade Apache2 to newest version
+      shell: |
+        sudo add-apt-repository -y ppa:ondrej/apache2
+        sudo apt-get update
+        sudo apt-get -o Dpkg::Options::='--force-confold' --force-yes -fuy install apache2
+        sudo apt-get -y autoremove
+        sudo apt-get autoclean
+      args:
+        executable: /bin/bash
+
+    - name: Enable apache2 headers-module
+      apache2_module:
+        state: present
+        name: headers
+
+    - name: Enable apache2 ssl-module
+      apache2_module:
+        state: present
+        name: ssl
+
+    - name: Enable apache2 http2-module
+      apache2_module:
+        state: present
+        name: http2
+
+    ## Database
+
+    - name: Create MySQL Database
+      mysql_db:
+        name: xvModxDatabase
+        encoding: utf8
+        collation: utf8_unicode_ci
+        state: present
+
+    - name: Create MySQL User
+      mysql_user:
+        name: xvModxUser
+        password: xvModxPassword
+        priv: '*.*:ALL'
+        state: present
+
+    ## Deployment
+
+    - name: Copy local-development php.ini
+      copy:
+        src: ../config/99-local-dev.ini
+        dest: "/etc/php/{{php_version}}/{{item}}/conf.d/99-local-dev.ini"
+        group: root
+        owner: root
+        mode: 0777
+      with_items:
+        - apache2
+        - cli
+        - fpm
+
+    - name: Copy local-development php.ini to fpm-pool
+      copy:
+        src: ../config/99-local-dev.ini
+        dest: "/etc/php/{{php_version}}/fpm/pool.d/99-local-dev.ini"
+        group: root
+        owner: root
+        mode: 0777
+
+    - name: Create errors directory
+      file:
+        path: '/var/www/errors'
+        state: directory
+
+    - name: Create PHP error-log
+      file:
+        path: '/var/www/errors/php-errors.log'
+        state: touch
+        group: root
+        owner: root
+        mode: 0777
+
+    - name: Create Gitify directory
+      file:
+        path: '{{ gitify_dir }}'
+        state: directory
+
+    - name: Install Gitify
+      shell: |
+        git clone https://github.com/modmore/Gitify.git .
+        git checkout master
+        chmod +x Gitify
+        composer install
+      args:
+        executable: /bin/bash
+        chdir: '{{ gitify_dir }}'
+        creates: '{{ gitify_dir }}/Gitify'
+
+    - name: Delete default index.html from Apache2
+      file:
+        state: absent
+        path: /var/www/html/index.html
+
+    - name: Check if MODX is already installed
+      stat:
+        path: /var/www/html/.modx_version
+      register: modx_installed
+
+    - name: Check if MODX needs to be upgraded
+      shell: |
+        $INSTALLED_MODX=cat /var/www/html/.modx_version
+        echo $INSTALLED_MODX = $MODX_VERSION
+      when: modx_installed.stat.exists
+      register: modx_needs_updgrade
+
+    - name: Is MODX version correct?
+      debug:
+        msg: "{{ modx_needs_updgrade.stdout_lines }}"
+      when: modx_needs_updgrade.stdout_lines is defined
+
+    - name: Download specified MODX-Version
+      get_url:
+        url: 'https://modx.com/download/direct/modx-{{ modx_version }}-pl.zip'
+        dest: /tmp/modx.zip
+        mode: 0755
+
+    - name: Create temporary directory for MODX
+      file:
+        path: /tmp/modx
+        state: directory
+        mode: 0755
+
+    - name: Unzip downloaded MODX
+      unarchive:
+        src: /tmp/modx.zip
+        dest: /tmp/modx
+        remote_src: yes
+
+    - name: Prepare MODX
+      shell: |
+        rsync -a "/tmp/modx"/*/* .
+        echo '{{ modx_version }}' > ./.modx_version
+      args:
+        executable: /bin/bash
+        chdir: /var/www/html
+        creates: /var/www/html/.modx_version
+
+    - name: Create assets directory for MODX
+      file:
+        path: /var/www/html/assets
+        state: directory
+        mode: 0777
+
+    - name: Check if setup-directory exists
+      stat: path=/var/www/html/setup
+      register: setup_required
+
+    - name: Delete default ht.access from MODX directory
+      file:
+        state: absent
+        path: /var/www/html/ht.access
+      when: setup_required.stat.exists
+
+    - name: Secure MODX core directory
+      command: mv ht.access .htaccess
+      args:
+        chdir: /var/www/html/core
+        creates: /var/www/html/core/.htaccess
+      when: setup_required.stat.exists
+
+    - name: Copy config.xml
+      copy:
+        src: ../config/config.new.xml
+        dest: /var/www/html/setup/config.xml
+        group: www-data
+        owner: www-data
+        mode: 0777
+      when: setup_required.stat.exists
+
+    - name: Install MODX
+      shell: |
+        cd /var/www/html/setup
+        php -d date.timezone=Europe/Berlin ./index.php --installmode=new
+      args:
+        executable: /bin/bash
+      environment:
+        MODX_HTTP_HOST: '{{ modx_host }}'
+      register: modxinstall
+      when: setup_required.stat.exists
+
+    - name: Install MODX Output
+      debug:
+        msg: "{{ modxinstall.stdout_lines }}"
+      when: modxinstall.stdout_lines is defined
+
+    - name: Install MODX Packages via Gitify
+      shell: |
+        "{{ gitify_dir }}/Gitify" package:install --all
+      args:
+        executable: /bin/bash
+        chdir: /var/www/html
+      environment:
+        MODX_HTTP_HOST: '{{ modx_host }}'
+      register: gitify_install
+
+    - name: Install MODX Packages Output
+      debug:
+        msg: "{{ gitify_install.stdout_lines }}"
+      when: gitify_install.stdout_lines is defined
+
+    - name: Install MODX Data via Gitify
+      shell: |
+        "{{ gitify_dir }}/Gitify" build --force --no-backup
+      args:
+        executable: /bin/bash
+        chdir: /var/www/html
+      register: gitify_build
+
+    - name: Install MODX Data Output
+      debug:
+        msg: "{{ gitify_build.stdout_lines }}"
+      when: gitify_build.stdout_lines is defined
+
+    - name: Restart Web-Server
+      shell: service apache2 restart
+      become: true
+      args:
+        executable: /bin/bash
+
+    - name: Clear MODX-Cache
+      shell: php -f /var/www/_server/scripts/clear-modx-cache.php
+      args:
+        executable: /bin/bash
+
+
