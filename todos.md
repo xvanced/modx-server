@@ -1,3 +1,5 @@
+- Update Readme.md
+    - Segment sub-topics into `docs`-dir
 - Install all necessary vagrant-plugins beforehand/globally? 
 - Make PHP-Version configurable through .env
 - Make Gitify-Paths configurable through .env
