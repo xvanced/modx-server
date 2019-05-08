@@ -1,4 +1,4 @@
-- Install all necessary vagrant-plugins beforehand? 
+- Install all necessary vagrant-plugins beforehand/globally? 
 - Make PHP-Version configurable through .env
 - Make Gitify-Paths configurable through .env
 - Make OpenSSL-Version configurable through .env
