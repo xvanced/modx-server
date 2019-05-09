@@ -1,28 +1,16 @@
 #!/bin/bash
 
-## Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-ORANGE='\033[0;33m'
-NC='\033[0m' # No Color
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 
-## Helper
-exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+. "$DIR/common.sh"
 
-missing() {
-    echo -e "${RED}$1 is missing."
-    echo
-    exit 1
-}
-
-scriptDir="$(dirname $0)"
+#publicPath=$(read_var PATH_PUBLIC .env)
 
 ## Script
 
-echo -e "${NC}Changing into ${scriptDir}"
-cd ${scriptDir}
+echo -e "${NC}Changing into ${DIR}"
+cd ${DIR}
 
 echo
 echo -e "${ORANGE}=== Checking Dependencies ==="
@@ -80,8 +68,8 @@ echo
 
 echo -e "${NC}You finished the initialization."
 echo
-echo -e "${NC}Use 'vagrant ssh' inside '${scriptDir}' or one of the following scripts to operate on the machine: "
+echo -e "${NC}Use 'vagrant ssh' inside '${DIR}' or one of the following scripts to operate on the machine: "
 
-echo "$(ls ./*.sh | grep -v 'init.sh')"
+echo "$(ls ./*.sh | egrep -v '(common|init).sh')"
 
 exit 0
