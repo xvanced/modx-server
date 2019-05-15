@@ -82,6 +82,7 @@ Vagrant.configure(vagrantfile_api_version) do |config|
   # VirtualBox Guest Plugin
   if vagrantfile_plugin_vbguest == 'on'
     config.vbguest.auto_update = true
+    #config.vbguest.iso_path = 'vbox/VBoxGuestAdditions_6.0.9-130569.iso'
     config.vbguest.no_remote = false
   else
     config.vbguest.auto_update = false
