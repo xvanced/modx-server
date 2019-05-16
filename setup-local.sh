@@ -1,5 +1,12 @@
 #!/bin/bash
 
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+
+. "$DIR/common.sh"
+
+URL="https://$(read_var PROJECT_URL .env)/"
+
 clear
 
 echo
@@ -42,3 +49,12 @@ echo "_____________________________________________________"
 echo
 
 vagrant up --provision
+
+echo
+echo "Opening web-browser with project-url"
+echo "_____________________________________________________"
+echo
+
+python -mwebbrowser -t "$URL" >/dev/null 2>&1
+
+exit 0

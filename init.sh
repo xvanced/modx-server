@@ -5,8 +5,6 @@ if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 
 . "$DIR/common.sh"
 
-#publicPath=$(read_var PATH_PUBLIC .env)
-
 ## Script
 
 echo -e "${NC}Changing into ${DIR}"
