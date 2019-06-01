@@ -115,6 +115,11 @@
         state: present
         name: headers
 
+    - name: Enable apache2 expires-module
+      apache2_module:
+        state: present
+        name: expires
+
     - name: Enable apache2 ssl-module
       apache2_module:
         state: present
