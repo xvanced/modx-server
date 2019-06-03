@@ -1,29 +1,52 @@
-# MODX Backend Project
+MODX Local Development Server
 =====================
+*portable virtual MODX dev-environment with **Vagrant**, provisioned by **Ansible**, powered by **Gitify*** and loved by you! :heart:
 
-The Backend is backed out of MODX Revolution, a creative freedom CMF.
-With the customization done it becomes a perfect CMS.
 The workflow uses Gitify from modMore which is a CLI-App used
 through CLI/SSH for transferring/migrating MODX DB-data.
 
-> Abstract requirement:
-This project uses premium plugins from modMore. To use their service-provider
-we need to provide a `.modmore.com.key` file with api-credentials.
+> Currently this server expects to be inside a Gitify project, like this: 
 
-## Local Deployment 2.0
+**Directory-Overview**
+
+- **`/`** 
+  :: Root / Configuration Files / Scripts
+- **`/_backup`** 
+  :: Gitify Backup Directory
+- **`/_data`** 
+  :: Gitify Object Directory
+- **`/server`** :arrow_backward: <small>*(you are here)*</small>
+  :: Directory for MODX Local Development Server
+- **`/www`** 
+  :: Webroot / MODX Directory <small>(only necessary files should get versioned/transferred)</small> 
+
+> This means it expects a valid `.gitify` configuration-file inside `/www`
+
+## Setup
 ### Requirements
 - Vagrant
 - Ansible
 
-### Setup
+### Installation
 Run: 
 ```
-./setup-local.sh
+./init.sh
 ```
 
-### Commands
+## Commands
+### On the VM
+
 To manually start the vm or bring it back up: 
-`vagrant up`
+`./vm-start.sh` or `vagrant up`
+
+Stop the machine:
+`./vm-halt.sh` or `vagrant halt`
+
+Destroy the machine and delete MODX files:
+`./vm-halt.sh`
+
+Destroy only the machine:
+`vagrant destroy`
 
 Check status of machine: 
 `vagrant status`
@@ -31,32 +54,27 @@ Check status of machine:
 Update the box of the vm: 
 `vagrant box update`
 
-To log in to local server: 
+
+### Working inside the VM
+1. SSH into the local server: 
 `vagrant ssh`
 
-Stop the machine:
-`vagrant halt`
+2. Change into public directory:
+`cd /var/www/html`
 
-Destroy the machine:
-`vagrant destroy`
+You should be inside your mapped web-root.
 
-Inside the machine you could need the following: 
+---
+
+Inside the machine, if the setup fails, you might need one the following: 
 
 - `sudo -su www-data php -d date.timezone=Europe/Berlin ./index.php --installmode=new`
 - `sudo -su www-data php -d date.timezone=Europe/Berlin ./index.php --installmode=new --core_path=/path/to/core/ --config_key=config`
 - `sudo -su www-data php -d date.timezone=Europe/Berlin ./index.php --installmode=upgrade`
 - `mysqlshow --user=xvModxUser --password=xvModxPassword xvModxDatabase`
 
-
-## Local & Remote Deployment 1.0
-### Requirements
-- Lamp/Xamp/Wamp setup
-- Install Composer
-- Install Gitify
-
-### Backend Installation
-Change into public directory:
-`cd www`
+### Working with Gitify
+Inside your public directory you can use Gitify for the follow tasks:
 
 Get the latest MODX:
 ```
@@ -68,62 +86,45 @@ Get a specified MODX:
 Gitify modx:install 2.5.6-pl -vvv
 ```
 
+Upgrade to a specified MODX:
+```
+Gitify modx:upgrade 2.6.0-pl
+```
+
 > Note:
-Install used MODX version first and upgrade from there.
+Install MODX used in your project first and upgrade from there to every patch version until you reach the most current.
 
-Build MODX Base:
+
+Install all packages specified in your `.gitify` config: 
 ```
 Gitify package:install --all
 ```
+
+Extract MODX Data:
 ```
-Gitify build --force --no-backup
+Gitify extract
 ```
 
-Secure MODX core:
+Build MODX Data:
 ```
-mv core/ht.access core/.htaccess
-```
-
-Make writable directories:
-```
-chmod 777 assets
-```
-```
-chmod 777 -R assets/components assets/image-cache core/cache core/components core/packages
+Gitify build
 ```
 
-Useful Gitify commands: 
-- Gitify build
-- Gitify backup filename
-- Gitify extract
-- Gitify restore
-
-Shortcuts:
+Backup MODX Data:
 ```
-Gitify modx:install && Gitify package:install --all && Gitify build --no-backup
+Gitify backup filename
+```
+
+Restore MODX Data:
+```
+Gitify restore
+```
+
+One-Liner with options:
+```
 Gitify modx:install && Gitify package:install --all && Gitify build --no-backup --force
-  
-// Then again?
-Gitify build --no-backup
-  
-Gitify modx:install
-Gitify package:install --all
-Gitify build --no-backup --force
-Gitify build --no-backup
 ```
 
-
-Directory-Overview
-----
-- **/** 
-  :: Root / Configuration Files / Scripts
-- **/\_backup** 
-  :: Gitify Backup Directory
-- **/\_data** 
-  :: Gitify Object Directory
-- **/\_server** 
-  :: Ansible Directory for Vagrant VM
-- **/www** 
-  :: Webroot / MODX Directory (only necessary files get versioned/transferred) 
+---
 
 Written by Sebastian G. Marinescu 
