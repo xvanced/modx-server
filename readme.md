@@ -1,9 +1,9 @@
 MODX Local Development Server
 =====================
-*virtual MODX development-environment cooked in **Vagrant**, provisioned by **Ansible**, powered by **Gitify*** and loved by you! :heart:
+*virtual MODX development-environment cooked in **Vagrant**, 
+<br>provisioned with **Ansible**, powered by **Gitify*** 
 
-The workflow uses [Gitify](https://github.com/modmore/Gitify) from modmore which is a CLI-App used
-through CLI/SSH for transferring/migrating MODX DB-data.
+The workflow uses [Gitify](https://github.com/modmore/Gitify) from modmore which is a CLI-App for transferring/migrating MODX DB-data.
 
 > Currently this server expects to be inside a Gitify project, like this: 
 
