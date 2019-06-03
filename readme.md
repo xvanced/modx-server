@@ -50,7 +50,12 @@ The workflow uses [Gitify](https://github.com/modmore/Gitify) from modmore which
 - Ansible
 
 ### Installation
-Run: 
+Add as sub-module to your project: 
+```
+git submodule add https://github.com/xvanced/modx-server server
+```
+
+Initialize: 
 ```
 ./init.sh
 ```
