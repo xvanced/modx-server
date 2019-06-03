@@ -53,6 +53,7 @@ The workflow uses [Gitify](https://github.com/modmore/Gitify) from modmore which
 Add as sub-module to your project: 
 ```
 git submodule add https://github.com/xvanced/modx-server server
+cd server
 ```
 
 Initialize: 
