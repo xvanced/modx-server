@@ -1,8 +1,8 @@
 MODX Local Development Server
 =====================
-*portable virtual MODX dev-environment with **Vagrant**, provisioned by **Ansible**, powered by **Gitify*** and loved by you! :heart:
+*virtual MODX development-environment cooked in **Vagrant**, provisioned by **Ansible**, powered by **Gitify*** and loved by you! :heart:
 
-The workflow uses Gitify from modMore which is a CLI-App used
+The workflow uses [Gitify](https://github.com/modmore/Gitify) from modmore which is a CLI-App used
 through CLI/SSH for transferring/migrating MODX DB-data.
 
 > Currently this server expects to be inside a Gitify project, like this: 
@@ -21,6 +21,28 @@ through CLI/SSH for transferring/migrating MODX DB-data.
   :: Webroot / MODX Directory <small>(only necessary files should get versioned/transferred)</small> 
 
 > This means it expects a valid `.gitify` configuration-file inside `/www`
+
+**What does it do?**
+1. Creates a VM
+    - Vagrant box based on ubuntu-16.04
+2. Provisions VM
+    - Installs and configures:
+        - mysql
+        - apache
+        - php-fpm
+        - phpmyadmin (*work-in-progress*)
+        - composer
+        - git
+        - unzip
+        - Gitify
+3. Download and install newest OpenSSL
+4. Creates self-signed certificate
+5. Upgrade Apache2 to newest version
+6. Enable Apache2-modules <small>(headers-module, expires-module, ssl-module, http2-module)</small>
+7. Creates MySQL database and user
+8. Installs MODX and Extras
+9. Builds MODX `_data`
+10. Opens the browser when done
 
 ## Setup
 ### Requirements
