@@ -20,9 +20,9 @@
     <language>de</language>
 
     <!-- Information for your administrator account -->
-    <cmsadmin>Sebastian</cmsadmin>
+    <cmsadmin>Admin</cmsadmin>
     <cmspassword>localDev</cmspassword>
-    <cmsadminemail>info@sebastian-marinescu.de</cmsadminemail>
+    <cmsadminemail>info@xvanced.com</cmsadminemail>
 
     <!-- Paths for your MODX core directory -->
     <core_path>/var/www/html/core/</core_path>
