@@ -41,6 +41,9 @@ then
 else
     echo -e "${ORANGE}'../.env' not found"
     echo -e "${ORANGE}Copying the sample-file to '../.env'"
+    echo
+    echo -e "${RED}Before continuing you should customize '../.env'"
+    echo
 
     cp .env.example ../.env
 fi
@@ -66,7 +69,7 @@ echo
 
 echo -e "${NC}You finished the initialization."
 echo
-echo -e "${NC}Use 'vagrant ssh' inside '${DIR}' or one of the following scripts to operate on the machine: "
+echo -e "${NC}Use 'vagrant ssh' inside '${DIR}' or one of the following scripts from this directory to operate on the machine: "
 
 echo "$(ls ./*.sh | egrep -v '(common|init).sh')"
 
