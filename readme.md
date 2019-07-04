@@ -46,8 +46,21 @@ The workflow uses [Gitify](https://github.com/modmore/Gitify) from modmore which
 
 ## Setup
 ### Requirements
+- VirtualBox
+  ```
+  sudo apt install virtualbox
+  ```
 - Vagrant
+  ```
+  sudo apt install vagrant
+  ```
 - Ansible
+  ``` 
+  sudo apt update
+  sudo apt install software-properties-common
+  sudo apt-add-repository --yes --update ppa:ansible/ansible
+  sudo apt install ansible
+  ``` 
 
 ### Installation
 Add as sub-module to your project: 
